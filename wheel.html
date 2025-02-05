@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عجلة الحظ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-image: url('a.jpg');
+        }
+        h1 {
+            margin-top: 20px;
+            font-size: 2em;
+            color: #333;
+            animation: colorChange 5s linear infinite;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        @keyframes colorChange {
+            0% { color: #ff4b5c; }
+            25% { color: #6a8d92; }
+            50% { color: #ff8c00; }
+            75% { color: #32a852; }
+            100% { color: #ff4b5c; }
+        }
+        .wheel-container {
+            margin: 50px auto;
+            width: 310px;
+            height: 310px;
+            position: relative;
+        }
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 100%;
+            background: conic-gradient(
+                #55d5ff 0deg 36deg,
+                #3cd672 36deg 72deg,
+                #55d5ff 72deg 108deg,
+                #3cd672 108deg 144deg,
+                #55d5ff 144deg 180deg,
+                #3cd672 180deg 216deg,
+                #55d5ff 216deg 252deg,
+                #3cd672 252deg 288deg,
+                #55d5ff 288deg 324deg,
+                #3cd672 324deg 360deg
+            );
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .numbers div {
+            position: absolute;
+            font-size: 25px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 3px #4615ff;
+        }
+        .num-1 { transform: translate(-170%, -130px); }        .num-2 { transform: translate(20px, -125px); }
+        .num-3 { transform: translate(80px, -80px); }        .num-4 { transform: translate(100px, -15px); }
+        .num-5 { transform: translate(90px, 60px); }        .num-6 { transform: translate(30px, 100px); }
+        .num-7 { transform: translate(-50px, 100px); }        .num-8 { transform: translate(-110px, 55px); }
+        .num-9 { transform: translate(-130px, -15px); }        .num-10 { transform: translate(-110px, -90px); }
+        button {
+            margin-top: 30px;
+            padding: 12px 30px;
+            font-size: 18px;
+            background: #4caf50;
+            color: white;
+            border: 2px solid #4caf50;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 12px rgba(0, 0, 0, 0.1);
+        }
+        button:hover {
+            background: #00eaff;
+            color: #000808;
+            border-color: #45a049;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2), 0 3px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-4px);
+        }
+        button:active {
+            background: #ee6363;
+            transform: translateY(2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 10px rgba(0, 0, 0, 0.2);
+        }
+        button:focus {
+            outline: none;
+            border-color: #388e3c;
+            box-shadow: 0 0 10px rgba(56, 142, 60, 0.8);
+        }
+        #message {
+            display: none;
+            margin-top: 20px;
+            font-size: 1.5em;
+            color: #333;
+            background: #f1f1f1;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        #resultMessage {
+            margin-top: 20px;
+            font-size: 1.5em;
+            color: #333;
+            background: #f1f1f1;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        #countdown {
+            font-size: 2em;
+            margin-top: 30px;
+            color: #ff4b5c;
+        }
+    </style>
+</head>
+<body>
+    <h1>Diners   مرحبا بك، عجلة تطبيق </h1>
+    <h1>🎁 العجلة مجانية 🎁</h1>
+    <h1>🔷مرة واحدة كل 24 ساعة🔷</h1>
+    <div class="wheel-container">
+        <div class="wheel" id="wheel">
+            <div class="numbers">
+<div class="num-1">🎁</div> 
+                <div class="num-3">🎁</div>               
+                <div class="num-2">🎁</div> 
+                <div class="num-4">🎁</div> 
+                <div class="num-5">🎁</div> 
+                <div class="num-6">🎁</div> 
+                <div class="num-7">🎁</div> 
+                <div class="num-8">🎁</div> 
+                <div class="num-9">🎁</div> 
+                <div class="num-10">🎁</div>
+            </div>
+        </div>
+    </div>
+    <button id="spinButton">لف العجلة</button>
+
+    <div id="message"></div>
+    <div id="resultMessage"></div>
+    <div id="countdown"></div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const name = urlParams.get('name');
+        const code = urlParams.get('code');
+        const referral = urlParams.get('referral');
+
+        const wheel = document.getElementById('wheel');
+        const spinButton = document.getElementById('spinButton');
+        const message = document.getElementById('message');
+        const resultMessage = document.getElementById('resultMessage');
+        const countdown = document.getElementById('countdown');
+        let isSpinning = false;
+
+        const lastSpin = localStorage.getItem('lastSpin');
+        const currentTime = new Date().getTime();
+        const timeDiff = currentTime - lastSpin;
+
+        if (timeDiff < 1 * 1 * 60 * 1000) {
+            const remainingTime = Math.floor((24 * 60 * 60 * 1000 - timeDiff) / 1000);
+            const hours = Math.floor(remainingTime / 3600);
+            const minutes = Math.floor((remainingTime % 3600) / 60);
+            const seconds = remainingTime % 60;
+            countdown.textContent = `يمكنك المحاولة مرة أخرى بعد: ${hours} ساعة و ${minutes} دقيقة و ${seconds} ثانية`;
+            spinButton.disabled = true;
+        }
+
+        spinButton.addEventListener('click', () => {
+            if (isSpinning) return;
+            isSpinning = true;
+
+            const randomDegree = Math.floor(Math.random() * 360) + 3600;
+            wheel.style.transition = 'transform 5s ease-out';
+            wheel.style.transform = `rotate(${randomDegree}deg)`;
+
+            setTimeout(() => {
+                const segment = Math.floor(((randomDegree % 360) / 36) + 1);
+                message.textContent = `نتيجتك هي: ${segment}نقطة . تم ارسال نتيجتك الى المدير ، يرجى التحلي بالصبر وعدم المحاولة الا بعد 24 ساعه ، في حال قمت بتدويرها مرة ثانية يتم حظرك 8 ايام `;
+                resultMessage.textContent = `نتيجتك هي: ${segment} نقطة`;
+                message.style.display = 'block';
+                resultMessage.style.display = 'block';
+
+                sendToTelegramBot(name, code, referral, segment);
+
+                localStorage.setItem('lastSpin', currentTime); // حفظ وقت آخر محاولة
+
+                isSpinning = false;
+                wheel.style.transition = '';
+
+                // إعادة التوجيه إلى الصفحة الأولى بعد 10 ثوانٍ
+                setTimeout(() => {
+                    window.location.href = 'index.html'; // قم بتغيير الرابط إلى صفحة البداية الخاصة بك
+                }, 1000000); // تأخير 10 ثوانٍ
+            }, 5000);
+        });
+
+        // تحميل البيانات من ملف send.json
+        let botToken, chatIds;
+
+        fetch('send.json')
+            .then(response => response.json())
+            .then(config => {
+                botToken = config.botToken;
+                chatIds = config.chatIds;
+            })
+            .catch(error => console.error('حدث خطأ أثناء تحميل البيانات من ملف send.json:', error));
+
+        function sendToTelegramBot(name, code, referral, result) {
+            const date = new Date().toLocaleDateString(); // احصل على التاريخ الحالي
+            const messageText = `
+⌛استاذ احمد وصلك طلب جديد ⌛ \n
+🧑‍💻 اسم مستخدم: ${name}\n
+🔗 رمز الإحالة: ${referral}\n
+🔑 كود الدعوة: ${code}\n
+🎰 نتيجة العجلة: ${result}\n
+📅 التاريخ: ${new Date().toLocaleString()}
+            `;
+
+            chatIds.forEach(chatId => {
+                const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(messageText)}`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => console.log('تم إرسال النتيجة إلى البوت بنجاح:', data))
+                    .catch(error => console.error('حدث خطأ أثناء إرسال النتيجة إلى البوت:', error));
+            });
+        }
+    </script>
+</body>
+</html>
